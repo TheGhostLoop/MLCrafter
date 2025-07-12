@@ -16,12 +16,13 @@ def create_df_structure():
     # taking rows input
     while True:
         cname = ",".join(df.columns)
-        choice = int(input('''
+        choice = (input('''
 1 - Insert data into dataframe
 2 - Exit
 Choice: '''))
-        
-        if choice == 1:
+
+
+        if choice == "1":
             row = input(f'''
 Feed data like this: 1,Alice,90
 Separate values by comma (NO brackets)
@@ -32,7 +33,7 @@ Separate values by comma (NO brackets)
                 continue
 
             df.loc[len(df)] = data
-        elif choice == 2:
+        elif choice == "2":
             break
         else:
             print("[->]Invalid choice. Try again.")
@@ -69,31 +70,42 @@ def select_df():
 
 
 def makeprediction(l_inames,dummiescols,model,o_name):
-        pdatainput = input(f'''
-Enter data! 👇
-Format: {l_inames} (separated by ,)
-[->]: ''')
-        pdatainput_final = pdatainput.strip().split(',')
-        a = []
-        for i in pdatainput_final:
-            if(i.isnumeric() == True or isfloat(i) == True):
-                a.append(float(i))
-            else:
-                a.append(i)
-        finaldata = pd.DataFrame([a],columns=l_inames)
-        finaldata = pd.get_dummies(finaldata,drop_first=True)
-        for i in dummiescols:
-            if i not in finaldata.columns:
-                finaldata[i] = 0
-        finaldata = finaldata[dummiescols]
+        try:
+            pdatainput = input(f'''
+    Enter data! 👇
+    Format: {l_inames} (separated by ,)
+    [->]: ''')
+            pdatainput_final = pdatainput.strip().split(',')
+            a = []
+            for i in pdatainput_final:
+                if(i.isnumeric() == True or isfloat(i) == True):
+                    a.append(float(i))
+                else:
+                    a.append(i)
+            finaldata = pd.DataFrame([a],columns=l_inames)
+            finaldata = pd.get_dummies(finaldata,drop_first=True)
+            for i in dummiescols:
+                if i not in finaldata.columns:
+                    finaldata[i] = 0
+            finaldata = finaldata[dummiescols]
 
 
-        # printing prediction result!
-        result = model.predict(finaldata)
-        print(f'Predicted result:: -> {result[0]:.2f} {o_name}')
+            # printing prediction result!
+            result = model.predict(finaldata)
+            print(f'Predicted result:: -> {result[0]:.2f} {o_name}')
+
+        except:
+            print(f"Input Data Not Matched!!\nRedirecting to Previous Menu\n")
+
+            return
 
 def plotgraph(l_inames,input_data,output_data,model,o_name):
         g_column = input(f"Enter any one column name\nAvailable Choices:{l_inames}\n[->]: ")
+        try:
+            test = input_data[g_column]
+        except:
+            print(f"Graph is not possible on {g_column}\nPlease choose different column.")
+            g_column = input(f"Enter any one column name\nAvailable Choices:{l_inames}\n[->]: ")
         plt.plot(input_data[g_column],output_data,label=f'Actual data',color='orange',marker='o')
         plt.plot(input_data[g_column],model.predict(input_data),label=f'Predicted data',color='green',marker='o')
         plt.xlabel(f'{g_column}')
@@ -109,7 +121,8 @@ def train_model(filepath):
     allcolumns = ",".join(df.columns)  
     i_names = input(f'''
     Kindly enter input columns names!
-                    eg: age,experience
+                    eg: age,experience,salary
+                    then choose (age,experience)
                 Available columns:: {allcolumns}
                 [->]: ''')
     o_name = input(f'''
@@ -179,12 +192,12 @@ Model Trained! ✅
 
 
 while(1):
-    choice = int(input("1 - Create DF for ML Model.\n2 - Train Your Own ML Model\n3 - Use Existing Models\n4 - Exit\n[->]: "))
-    if(choice==1):
+    choice = (input("1 - Create DF for ML Model.\n2 - Train Your Own ML Model\n3 - Use Existing Models\n4 - Exit\n[->]: "))
+    if(choice=="1"):
         create_df_structure()
-    elif(choice==2):
+    elif(choice=="2"):
         select_df()
-    elif(choice==3):
+    elif(choice=="3"):
 
         print("\n\nAvailable Trained Models 👇")
 
@@ -205,19 +218,21 @@ while(1):
             print(f"{modelname} Loaded ✅")
         except:
             print("❌ Model not found.")
-            exit()
+            continue
         while(1):
-            c = int(input("1 -> Show Graph\n2 -> Make Prediction\n3 -> Main Menu\n[->]: "))
-            if(c==1):
+            c = (input("1 -> Show Graph\n2 -> Make Prediction\n3 -> Main Menu\n[->]: "))
+            if(c=="1"):
                 plotgraph(l_inames,input_data,output_data,model,o_name)
-            elif(c==2):
+            elif(c=="2"):
                 makeprediction(l_inames,dummiescols,model,o_name)
-            elif(c==3):
+            elif(c=="3"):
                 break
             else:
                 print('Wrong Choice')
 
 
-    else:
+    elif(choice==4):
         print("Bye!\nExiting Program!")
         break
+    else:
+        print("Wrong Choice!!")
